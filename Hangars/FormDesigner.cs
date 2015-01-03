@@ -40,12 +40,17 @@ namespace Hangars
 
         static public Control designSearchCustomer()
         {
-            return new SearchCustomer().Add();
+            return new Search().Customer();
         }
 
         static public Control designCreateInvoice()
         {
             return new CreateInvoice().Add();
+        }
+
+        static public Control designEditInvoice(string n)
+        {
+            return new CreateInvoice().Edit(n);
         }
 
         static public Control designEditAircraft()
@@ -56,6 +61,11 @@ namespace Hangars
         static public Control designCreateMonthlyBill()
         {
             return new CreateMonthlyBill().Add();
+        }
+
+        static public Control designSearchInvoice()
+        {
+            return new Search().Invoice();
         }
     }
 
@@ -433,7 +443,7 @@ namespace Hangars
             stateComboBox.Location = new Point(3, 33);
             stateComboBox.Name = "comboBox1";
             stateComboBox.Size = new Size(40, 21);
-            stateComboBox.Items.AddRange(Functions.States);
+            stateComboBox.Items.AddRange(Util.States);
             stateComboBox.TabIndex = 7;
             // 
             // zipLabel
@@ -484,7 +494,7 @@ namespace Hangars
             phone1ComboBox.Location = new Point(3, 33);
             phone1ComboBox.Name = "comboBox1";
             phone1ComboBox.Size = new Size(60, 21);
-            phone1ComboBox.Items.AddRange(Functions.PhoneTypes);
+            phone1ComboBox.Items.AddRange(Util.PhoneTypes);
             phone1ComboBox.TabIndex = 10;
 
             // 
@@ -520,7 +530,7 @@ namespace Hangars
             phone2ComboBox.Location = new Point(3, 33);
             phone2ComboBox.Name = "phone2ComboBox";
             phone2ComboBox.Size = new Size(60, 21);
-            phone2ComboBox.Items.AddRange(Functions.PhoneTypes);
+            phone2ComboBox.Items.AddRange(Util.PhoneTypes);
             phone2ComboBox.TabIndex = 12;
             // 
             // columnsTableLayoutPanel
@@ -612,8 +622,8 @@ namespace Hangars
 
         public Control Edit(string n)
         {
-            DataTable oldCustomerInfo = Functions.getAllCustomerInfo(n);
-            DataTable oldAircraftInfo = Functions.getAllAircraftInfoByCustomer(n);
+            DataTable oldCustomerInfo = Util.getAllCustomerInfo(n);
+            DataTable oldAircraftInfo = Util.getAllAircraftInfoByCustomer(n);
             deleteButton.Click += new EventHandler(delegate
             {
                 // Delete customer from aircraft owners table
@@ -1153,7 +1163,7 @@ namespace Hangars
             hangarBuildingComboBox.Size = new Size(121, 21);
             hangarBuildingComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
             hangarBuildingComboBox.TabIndex = 1;
-            hangarBuildingComboBox.Items.AddRange(Functions.getHangarBuildings());
+            hangarBuildingComboBox.Items.AddRange(Util.getHangarBuildings());
         }
 
         public Control Add()
@@ -1178,7 +1188,7 @@ namespace Hangars
         public EditHangars()
         {
             new EditHangarRow(this);
-            slots = new HangarSlots(Functions.getHangaredCustomers(), Functions.getHangarNames());
+            slots = new HangarSlots(Util.getHangaredCustomers(), Util.getHangarNames());
             rows = new List<EditHangarRow>();
 
             marginPanel = new TableLayoutPanel();
@@ -1331,7 +1341,7 @@ namespace Hangars
             contentPanel.Dock = DockStyle.Top;
             contentPanel.Location = new Point(33, 63);
             contentPanel.Name = "tableLayoutPanel2";
-            contentPanel.RowCount = Functions.getHangarNames().Length + 1;
+            contentPanel.RowCount = Util.getHangarNames().Length + 1;
 
             int jj = 0;
             while (jj <= slots.Length)
@@ -1367,27 +1377,23 @@ namespace Hangars
         }
     }
 
-    class SearchCustomer
+    class Search
     {
         TableLayoutPanel marginPanel;
         TextBox searchTextBox;
         Panel contentPanel;
-        string[] customers;
-        List<coll> buttons;
+        List<SelectRow> buttons;
         TableLayoutPanel contentTable;
         BackgroundWorker backgroundWorker1;
 
-        public SearchCustomer()
+        public Search()
         {
             marginPanel = new TableLayoutPanel();
             searchTextBox = new TextBox();
             contentPanel = new Panel();
-            customers = new string[Functions.getCustomerNames(false).Length];
-            customers = Functions.getCustomerNames(false);
-            buttons = new List<coll>();
+            buttons = new List<SelectRow>();
             contentTable = new TableLayoutPanel();
             backgroundWorker1 = new BackgroundWorker();
-            backgroundWorker1.DoWork += new DoWorkEventHandler(backgroundWorker1_DoWork);
 
             // 
             // marginPanel
@@ -1439,7 +1445,39 @@ namespace Hangars
                     {
                         backgroundWorker1.Dispose();
                         backgroundWorker1 = new BackgroundWorker();
-                        backgroundWorker1.DoWork += new DoWorkEventHandler(backgroundWorker1_DoWork);
+                        backgroundWorker1.DoWork += new DoWorkEventHandler(delegate(object sender2, DoWorkEventArgs e2)
+                            {
+                                if (String.CompareOrdinal(searchTextBox.Text, "") != 0)
+                                {
+                                    foreach (SelectRow c in buttons)
+                                    {
+                                        if (Util.searchButtonVisible(searchTextBox.Text, c.L))
+                                        {
+                                            c.button.Invoke((MethodInvoker)delegate
+                                            {
+                                                c.button.Visible = true;
+                                            });
+                                        }
+                                        else
+                                        {
+                                            c.button.Invoke((MethodInvoker)delegate
+                                            {
+                                                c.button.Visible = false;
+                                            });
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    foreach (SelectRow c in buttons)
+                                    {
+                                        c.button.Invoke((MethodInvoker)delegate
+                                        {
+                                            c.button.Visible = true;
+                                        });
+                                    }
+                                }
+                            });
                         backgroundWorker1.RunWorkerAsync();
                         e.Handled = true;
                     }
@@ -1461,99 +1499,75 @@ namespace Hangars
             // 
             // contentTable
             // 
-            int rowc = customers.Length;
 
             contentTable.ColumnCount = 1;
             contentTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-
-            for (int i = 0; i < rowc; i++)
-            {
-                coll c = new coll(ListNameButton(customers[i]));
-                buttons.Add(c);
-                contentTable.Controls.Add(c.button, 0, i);
-            }
-
             contentTable.AutoSize = true;
             contentTable.Location = new Point(0, 0);
             contentTable.Name = "tableLayoutPanel1";
-            contentTable.RowCount = rowc;
+        }
 
+        public Control Customer()
+        {
+            string[] customers = Util.getCustomerNames();
+            int rowc = customers.Length;
+
+            for (int i = 0; i < rowc; i++)
+            {
+                #region Getting List to search against & fullname
+                List<string> l = new List<string>();
+                string fullname = customers[i]; //Morton, Steve
+                string[] splited = fullname.Split(new char[] { ',', ' ' });
+                l.Add(fullname);
+                l.Add(splited[0]); //Morton
+                l.Add(splited[2]); //Steve
+                l.Add(splited[2] + " " + splited[0]); //Steve Morton
+                #endregion
+
+                SelectRow c = new SelectRow(l, fullname, fullname, marginPanel, FormDesigner.designEditCustomer);
+                buttons.Add(c);
+                contentTable.Controls.Add(c.button, 0, i);
+            }
+            contentTable.RowCount = rowc;
             for (int i = 0; i < rowc; i++)
             {
                 contentTable.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             }
             contentTable.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+
+            return marginPanel;
         }
 
-        void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
+        public Control Invoice()
         {
-            if (String.CompareOrdinal(searchTextBox.Text, "") != 0)
+            DataTable invoices = Util.getInvoices(""); //Todo: date parameter
+            string[] invoiceIDs = Util.datatableTOarray(invoices, "InvoiceID");
+            int rowc = invoiceIDs.Length;
+
+            for (int i = 0; i < rowc; i++)
             {
-                foreach (coll c in buttons)
-                {
-                    string ix = searchTextBox.Text;
-                    int stop = ix.Length;
-                    if ((stop <= c.fName.Length ? c.fName.Substring(0, stop).Equals(ix, StringComparison.InvariantCultureIgnoreCase) : false)
-                        || (stop <= c.lName.Length ? c.lName.Substring(0, stop).Equals(ix, StringComparison.InvariantCultureIgnoreCase) : false)
-                        || (stop <= c.name_LF.Length ? c.name_LF.Substring(0, stop).Equals(ix, StringComparison.InvariantCultureIgnoreCase) : false)
-                        || (stop <= c.name_FL.Length ? c.name_FL.Substring(0, stop).Equals(ix, StringComparison.InvariantCultureIgnoreCase) : false))
-                    {
-                        c.button.Invoke((MethodInvoker)delegate
-                        {
-                            c.button.Visible = true;
-                        });
-                    }
-                    else
-                    {
-                        c.button.Invoke((MethodInvoker)delegate
-                        {
-                            c.button.Visible = false;
-                        });
-                    }
-                }
+                string invoiceid = invoices.Rows[i]["InvoiceID"].ToString();
+                string customername = invoices.Rows[i]["Customer_Name"].ToString();
+                string date = invoices.Rows[i]["Date"].ToString();
+                List<string> l = new List<string>();
+                l.Add(invoiceid);
+                l.Add(customername);
+                l.Add(date);
+
+                string buttontext = invoiceid + ", " + date + " " + customername;
+
+                SelectRow c = new SelectRow(l, buttontext, invoiceid, marginPanel, FormDesigner.designEditInvoice);
+                buttons.Add(c);
+                contentTable.Controls.Add(c.button, 0, i);
             }
-            else
+
+            contentTable.RowCount = rowc;
+            for (int i = 0; i < rowc; i++)
             {
-                foreach (coll c in buttons)
-                {
-                    c.button.Invoke((MethodInvoker)delegate
-                    {
-                        c.button.Visible = true;
-                    });
-                }
+                contentTable.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             }
-        }
+            contentTable.RowStyles.Add(new RowStyle(SizeType.AutoSize));
 
-        Button ListNameButton(string n)
-        {
-            Button contentButton;
-
-            contentButton = new Button();
-            // 
-            // contentButton
-            // 
-            contentButton.FlatAppearance.BorderColor = SystemColors.Control;
-            contentButton.FlatStyle = FlatStyle.Flat;
-            contentButton.Location = new Point(0, 0);
-            contentButton.Margin = new Padding(0);
-            contentButton.Name = "contentButton";
-            contentButton.TabIndex = 0;
-            contentButton.Size = new Size(150, 24);
-            contentButton.Text = n;
-            contentButton.TextAlign = ContentAlignment.MiddleLeft;
-            contentButton.UseVisualStyleBackColor = true;
-            contentButton.Click += new System.EventHandler(delegate
-                {
-                    Control temp = marginPanel.Parent;
-                    marginPanel.Parent.Controls.RemoveAt(0);
-                    temp.Controls.Add(FormDesigner.designEditCustomer(n));
-                });
-
-            return contentButton;
-        }
-
-        public Control Add()
-        {
             return marginPanel;
         }
 
@@ -1610,16 +1624,7 @@ namespace Hangars
                     }
                     else
                     {
-                        decimal d = Functions.getCustomerBalance(customerComboBox.SelectedText);
-                        accountBalanceLabel.Text = "Balance: " + d.ToString("0.00", CultureInfo.InvariantCulture);
-                        if(d>=0)
-                        {
-                            accountBalanceLabel.ForeColor = Color.Green;
-                        }
-                        else
-                        {
-                            accountBalanceLabel.ForeColor = Color.Red;
-                        }
+                        setBalance(customerComboBox.SelectedText);
                     }
                 });
             chargesLabel = new Label();
@@ -1649,7 +1654,6 @@ namespace Hangars
                 });
             dateTimePicker1 = new DateTimePicker();
             dateTimePicker1.Value = DateTime.Now;
-            dateTimePicker1.Visible = false;
             chargesMasterPanel = new FlowLayoutPanel();
             chargesHeaderPanel = new FlowLayoutPanel();
             itemLabel = new Label();
@@ -1670,53 +1674,6 @@ namespace Hangars
                     paymentsMasterPanel.Controls.Add(r.paymentsExamplePanel);
                 });
             createInvoiceButton = new Button();
-            createInvoiceButton.Click += new EventHandler(delegate
-                {
-                    string invoiceID = Functions.getNextInvoiceID();
-
-                    string fullname = customerComboBox.Text;
-                    decimal amount_due = 0m;
-
-                    foreach (ChargesRow r in charges)
-                    {
-                        using (SqlCommand com = new SqlCommand("INSERT INTO Item (Amount, InvoiceID, Notes, Item) Values(@amount, @invoiceid, @notes, @item)", Form1.connect))
-                        {
-                            com.Parameters.AddWithValue("@invoiceid", invoiceID);
-                            com.Parameters.AddWithValue("@amount", r.chargesEpriceTextBox.Text);
-                            com.Parameters.AddWithValue("@notes", r.chargesEnotesTextBox.Text);
-                            com.Parameters.AddWithValue("@item", r.chargesEitemTextBox.Text);
-                            com.ExecuteNonQuery();
-                        }
-                        amount_due -= Convert.ToDecimal(r.chargesEpriceTextBox.Text);
-                    }
-
-                    foreach (PaymentsRow r in payments)
-                    {
-                        using (SqlCommand com = new SqlCommand("INSERT INTO Payment (InvoiceID, Amount, Check_Number, Notes) Values(@invoiceid, @amount, @checknumber, @notes)", Form1.connect))
-                        {
-                            com.Parameters.AddWithValue("@invoiceid", invoiceID);
-                            com.Parameters.AddWithValue("@amount", r.paymentEamountTextBox.Text);
-                            com.Parameters.AddWithValue("@notes", r.paymentsENotesTextBox.Text);
-                            com.Parameters.AddWithValue("@checknumber", r.paymentECheckNumberTextBox.Text);
-                            com.ExecuteNonQuery();
-                        }
-                        amount_due += Convert.ToDecimal(r.paymentEamountTextBox.Text);
-                    }
-
-                    using (SqlCommand com = new SqlCommand("INSERT INTO Invoice (InvoiceID, Customer_Name, Date, Amount_Due, Date_Created) Values(@invoiceid, @customern, @date, @amountd, @datecreated)", Form1.connect))
-                    {
-                        com.Parameters.AddWithValue("@invoiceid", invoiceID);
-                        com.Parameters.AddWithValue("@customern", fullname);
-                        com.Parameters.AddWithValue("@date", dateTimePicker1.Value);
-                        com.Parameters.AddWithValue("@amountd", amount_due);
-                        com.Parameters.AddWithValue("@datecreated", DateTime.Now);
-                        com.ExecuteNonQuery();
-                    }
-
-                    Functions.updateCustomerBalance(fullname, amount_due);
-
-                    marginPanel.Parent.Controls.Remove(marginPanel);
-                });
             charges = new List<ChargesRow>();
             payments = new List<PaymentsRow>();
             accountBalanceLabel = new Label();
@@ -1783,7 +1740,7 @@ namespace Hangars
             customerComboBox.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
             customerComboBox.AutoCompleteSource = AutoCompleteSource.ListItems;
             customerComboBox.FormattingEnabled = true;
-            customerComboBox.Items.AddRange(Functions.getCustomerNames(false));
+            customerComboBox.Items.AddRange(Util.getCustomerNames());
             customerComboBox.Location = new Point(63, 3);
             customerComboBox.Name = "customerComboBox";
             customerComboBox.Size = new Size(121, 21);
@@ -1851,10 +1808,10 @@ namespace Hangars
             dateTimePicker1.Location = new Point(219, 53);
             dateTimePicker1.Name = "dateTimePicker1";
             marginPanel.SetRowSpan(dateTimePicker1, 2);
-            dateTimePicker1.Size = new Size(200, 20);
+            dateTimePicker1.Size = new Size(120, 20);
             dateTimePicker1.TabIndex = 7;
             dateTimePicker1.Format = DateTimePickerFormat.Custom;
-            dateTimePicker1.CustomFormat = "M/dd/yyyy   h:mm tt";
+            dateTimePicker1.CustomFormat = "M/dd/yyyy";
             // 
             // chargesMasterPanel
             // 
@@ -2010,16 +1967,237 @@ namespace Hangars
             accountBalanceLabel.TabIndex = 1;
         }
 
+        public void setBalance(string s)
+        {
+            decimal d = Util.getCustomerBalance(s);
+            accountBalanceLabel.Text = "Balance: " + d.ToString("0.00", CultureInfo.InvariantCulture);
+            if (d >= 0)
+            {
+                accountBalanceLabel.ForeColor = Color.Green;
+            }
+            else
+            {
+                accountBalanceLabel.ForeColor = Color.Red;
+            }
+        }
+
         public Control Add()
         {
+            dateTimePicker1.Visible = false;
+
+            createInvoiceButton.Click += new EventHandler(delegate
+            {
+                string invoiceID = Util.getNextInvoiceID();
+
+                string fullname = customerComboBox.Text;
+                decimal amount_due = 0m;
+
+                foreach (ChargesRow r in charges)
+                {
+                    using (SqlCommand com = new SqlCommand("INSERT INTO Item (Amount, InvoiceID, Notes, Item) Values(@amount, @invoiceid, @notes, @item)", Form1.connect))
+                    {
+                        com.Parameters.AddWithValue("@invoiceid", invoiceID);
+                        com.Parameters.AddWithValue("@amount", r.chargesEpriceTextBox.Text);
+                        com.Parameters.AddWithValue("@notes", r.chargesEnotesTextBox.Text);
+                        com.Parameters.AddWithValue("@item", r.chargesEitemTextBox.Text);
+                        com.ExecuteNonQuery();
+                    }
+                    amount_due -= Convert.ToDecimal(r.chargesEpriceTextBox.Text);
+                }
+
+                foreach (PaymentsRow r in payments)
+                {
+                    using (SqlCommand com = new SqlCommand("INSERT INTO Payment (InvoiceID, Amount, Check_Number, Notes) Values(@invoiceid, @amount, @checknumber, @notes)", Form1.connect))
+                    {
+                        com.Parameters.AddWithValue("@invoiceid", invoiceID);
+                        com.Parameters.AddWithValue("@amount", r.paymentEamountTextBox.Text);
+                        com.Parameters.AddWithValue("@notes", r.paymentsENotesTextBox.Text);
+                        com.Parameters.AddWithValue("@checknumber", r.paymentECheckNumberTextBox.Text);
+                        com.ExecuteNonQuery();
+                    }
+                    amount_due += Convert.ToDecimal(r.paymentEamountTextBox.Text);
+                }
+
+                using (SqlCommand com = new SqlCommand("INSERT INTO Invoice (InvoiceID, Customer_Name, Date, Amount_Due, Date_Created) Values(@invoiceid, @customern, @date, @amountd, @datecreated)", Form1.connect))
+                {
+                    com.Parameters.AddWithValue("@invoiceid", invoiceID);
+                    com.Parameters.AddWithValue("@customern", fullname);
+                    com.Parameters.AddWithValue("@date", dateTimePicker1.Value);
+                    com.Parameters.AddWithValue("@amountd", amount_due);
+                    com.Parameters.AddWithValue("@datecreated", DateTime.Now);
+                    com.ExecuteNonQuery();
+                }
+
+                Util.updateCustomerBalance(fullname, amount_due);
+
+                marginPanel.Parent.Controls.Remove(marginPanel);
+            });
+
             return marginPanel;
         }
 
-        public Control Edit()
+        public Control Edit(string invoiceID)
         {
+            DataTable invoiceTable = Util.getInvoice(invoiceID);
+            dateTimePicker1.Value = DateTime.Parse(invoiceTable.Rows[0]["Date"].ToString());
+            customerComboBox.SelectedIndex = customerComboBox.FindStringExact(invoiceTable.Rows[0]["Customer_Name"].ToString());
+            setBalance(invoiceTable.Rows[0]["Customer_Name"].ToString());
+
+            DataTable itemsTable = Util.getItems(invoiceID);
+            foreach (DataRow r in itemsTable.Rows)
+            {
+                ChargesRow c = new ChargesRow();
+                c.chargesEitemTextBox.Text = r["Item"].ToString();
+                decimal price = Convert.ToDecimal(r["Amount"].ToString());
+                c.chargesEpriceTextBox.Text = price.ToString("0.00", CultureInfo.InvariantCulture);
+                c.chargesEnotesTextBox.Text = r["Notes"].ToString();
+                charges.Add(c);
+                chargesMasterPanel.Controls.Add(c.chargesExamplePanel);
+            }
 
 
+            DataTable paymentsTable = Util.getPayments(invoiceID);
+            foreach (DataRow r in paymentsTable.Rows)
+            {
+                PaymentsRow p = new PaymentsRow();
+                decimal price = Convert.ToDecimal(r["Amount"].ToString());
+                p.paymentEamountTextBox.Text = price.ToString("0.00", CultureInfo.InvariantCulture);
+                p.paymentECheckNumberTextBox.Text = r["Check_Number"].ToString();
+                p.paymentsENotesTextBox.Text = r["Notes"].ToString();
+                payments.Add(p);
+                paymentsMasterPanel.Controls.Add(p.paymentsExamplePanel);
+            }
 
+
+            dateCheckBox.Visible = false;
+            createInvoiceButton.Text = "Update Invoice";
+            createInvoiceButton.Click += new EventHandler(delegate
+            {
+                int oCount = 0;
+                int nCount = 0;
+                #region update items section
+                while (oCount < itemsTable.Rows.Count)
+                {
+                    DataRow oldRow = itemsTable.Rows[oCount];
+                    ChargesRow newRow = charges[nCount];
+                    if (string.CompareOrdinal(oldRow["Item"].ToString(), newRow.chargesEitemTextBox.Text) == 0)
+                    {
+                        if (string.CompareOrdinal(oldRow["Amount"].ToString(), newRow.chargesEpriceTextBox.Text) != 0)
+                        {
+                            using (SqlCommand com = new SqlCommand("UPDATE Item SET Amount = @amount WHERE ItemID = @id", Form1.connect))
+                            {
+                                com.Parameters.AddWithValue("@id", oldRow["ItemID"].ToString());
+                                com.Parameters.AddWithValue("@amount", newRow.chargesEpriceTextBox.Text);
+                                com.ExecuteNonQuery();
+                            }
+                        }
+                        if (string.CompareOrdinal(oldRow["Notes"].ToString(), newRow.chargesEnotesTextBox.Text) != 0)
+                        {
+                            using (SqlCommand com = new SqlCommand("UPDATE Item SET Notes = @notes WHERE ItemID = @id", Form1.connect))
+                            {
+                                com.Parameters.AddWithValue("@id", oldRow["ItemID"].ToString());
+                                com.Parameters.AddWithValue("@notes", newRow.chargesEnotesTextBox.Text);
+                                com.ExecuteNonQuery();
+                            }
+                        }
+                        oCount++;
+                        nCount++;
+                    }
+                    else
+                    {
+                        using (SqlCommand com = new SqlCommand("DELETE FROM Item WHERE ItemID = @id", Form1.connect))
+                        {
+                            com.Parameters.AddWithValue("@id", oldRow["ItemID"].ToString());
+                            com.ExecuteNonQuery();
+                        }
+                        oCount++;
+                    }
+                }
+
+                while (nCount < charges.Count)
+                {
+                    using (SqlCommand com = new SqlCommand("INSERT INTO Item (Amount, InvoiceID, Notes, Item) Values(@amount, @invoiceid, @notes, @item)", Form1.connect))
+                    {
+                        com.Parameters.AddWithValue("@invoiceid", invoiceID);
+                        com.Parameters.AddWithValue("@amount", charges[nCount].chargesEpriceTextBox.Text);
+                        com.Parameters.AddWithValue("@notes", charges[nCount].chargesEnotesTextBox.Text);
+                        com.Parameters.AddWithValue("@item", charges[nCount].chargesEitemTextBox.Text);
+                        com.ExecuteNonQuery();
+                    }
+                    nCount++;
+                }
+                #endregion
+
+                oCount = 0;
+                nCount = 0;
+                #region update payment section
+                while (oCount < Math.Min(paymentsTable.Rows.Count, payments.Count))
+                {
+                    DataRow oldRow = paymentsTable.Rows[oCount];
+                    PaymentsRow newRow = payments[nCount];
+                    if (string.CompareOrdinal(oldRow["Check_Number"].ToString(), newRow.paymentECheckNumberTextBox.Text) == 0)
+                    {
+                        using (SqlCommand com = new SqlCommand("UPDATE Payment SET Check_Number = @checkn WHERE PaymentID = @id", Form1.connect))
+                        {
+                            com.Parameters.AddWithValue("@id", oldRow["PaymentID"].ToString());
+                            com.Parameters.AddWithValue("@checkn", newRow.paymentEamountTextBox.Text);
+                            com.ExecuteNonQuery();
+                        }
+                    }
+                    if (string.CompareOrdinal(oldRow["Amount"].ToString(), newRow.paymentEamountTextBox.Text) != 0)
+                    {
+                        using (SqlCommand com = new SqlCommand("UPDATE Payment SET Amount = @amount WHERE PaymentID = @id", Form1.connect))
+                        {
+                            com.Parameters.AddWithValue("@id", oldRow["PaymentID"].ToString());
+                            com.Parameters.AddWithValue("@amount", newRow.paymentEamountTextBox.Text);
+                            com.ExecuteNonQuery();
+                        }
+                    }
+                    if (string.CompareOrdinal(oldRow["Notes"].ToString(), newRow.paymentsENotesTextBox.Text) != 0)
+                    {
+                        using (SqlCommand com = new SqlCommand("UPDATE Payment SET Notes = @notes WHERE PaymentID = @id", Form1.connect))
+                        {
+                            com.Parameters.AddWithValue("@id", oldRow["PaymentID"].ToString());
+                            com.Parameters.AddWithValue("@notes", newRow.paymentsENotesTextBox.Text);
+                            com.ExecuteNonQuery();
+                        }
+                    }
+
+                    oCount++;
+                    nCount++;
+                }
+
+                if (paymentsTable.Rows.Count < payments.Count)
+                {
+                    while (nCount < payments.Count)
+                    {
+                        using (SqlCommand com = new SqlCommand("INSERT INTO Payment (InvoiceID, Amount, Check_Number, Notes) Values(@invoiceid, @amount, @checkn, @notes)", Form1.connect))
+                        {
+                            com.Parameters.AddWithValue("@invoiceid", invoiceID);
+                            com.Parameters.AddWithValue("@amount", payments[nCount].paymentEamountTextBox.Text);
+                            com.Parameters.AddWithValue("@notes", payments[nCount].paymentsENotesTextBox.Text);
+                            com.Parameters.AddWithValue("@checkn", payments[nCount].paymentECheckNumberTextBox.Text);
+                            com.ExecuteNonQuery();
+                        }
+                        nCount++;
+                    }
+                }
+
+                if (paymentsTable.Rows.Count > payments.Count)
+                {
+                    while(nCount < paymentsTable.Rows.Count)
+                    {
+                        using (SqlCommand com = new SqlCommand("DELETE FROM Payment WHERE PaymentID = @id", Form1.connect))
+                        {
+                            com.Parameters.AddWithValue("@id", paymentsTable.Rows[oCount]["PaymentID"].ToString());
+                            com.ExecuteNonQuery();
+                        }
+                        oCount++;
+                    }
+                }
+                #endregion
+
+            });
 
             return marginPanel;
         }
@@ -2048,7 +2226,7 @@ namespace Hangars
             headerFlowLayoutPanel = new FlowLayoutPanel();
             dataFlowLayoutPanel = new FlowLayoutPanel();
             updateButton = new Button();
-            updateButton.Click += new EventHandler(delegate 
+            updateButton.Click += new EventHandler(delegate
                 {
                     string tailnum = aircraftComboBox.Text;
                     BackgroundWorker backgroundWorker1;
@@ -2085,7 +2263,7 @@ namespace Hangars
             aircraftComboBox = new ComboBox();
             aircraftComboBox.Validating += new CancelEventHandler(delegate
                 {
-                    oldAircraftInfo = Functions.getAllAircraftInfoByTailNumber(aircraftComboBox.Text);
+                    oldAircraftInfo = Util.getAllAircraftInfoByTailNumber(aircraftComboBox.Text);
                     heatersTextBox.Text = oldAircraftInfo.Rows[0]["Heaters"].ToString();
                     aircraftTypeTextBox.Text = oldAircraftInfo.Rows[0]["Type"].ToString();
                 });
@@ -2204,7 +2382,7 @@ namespace Hangars
             aircraftComboBox.Name = "aircraftComboBox";
             aircraftComboBox.Size = new Size(121, 21);
             aircraftComboBox.TabIndex = 1;
-            aircraftComboBox.Items.AddRange(Functions.getAircraftNumbers());
+            aircraftComboBox.Items.AddRange(Util.getAircraftNumbers());
             aircraftComboBox.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
             aircraftComboBox.AutoCompleteSource = AutoCompleteSource.ListItems;
         }
@@ -2233,15 +2411,16 @@ namespace Hangars
             createButton.Click += new EventHandler(delegate
                 {
                     int counter = 0;
-                    DataTable hangarSlots = Functions.getAllHangarSlots();
-                    foreach(DataRow row in hangarSlots.Rows)
+                    DataTable hangarSlots = Util.getAllHangarSlots();
+                    foreach (DataRow row in hangarSlots.Rows)
                     {
                         string fullname = row["Customer_Name"].ToString();
-                        if(String.CompareOrdinal(fullname, "") != 0){
+                        if (String.CompareOrdinal(fullname, "") != 0)
+                        {
                             counter++;
-                            decimal amount = Functions.getHangarPrice((row["Hangar"].ToString().Split(new char[] {'-'}))[0]);
+                            decimal amount = Util.getHangarPrice((row["Hangar"].ToString().Split(new char[] { '-' }))[0]);
                             decimal amount_due = 0m - amount;
-                            string invoiceID = Functions.getNextInvoiceID();
+                            string invoiceID = Util.getNextInvoiceID();
 
                             using (SqlCommand com = new SqlCommand("INSERT INTO Invoice (InvoiceID, Customer_Name, Date, Amount_Due, Date_Created) Values(@invoiceid, @customern, @date, @amountd, @datecreated)", Form1.connect))
                             {
@@ -2257,13 +2436,13 @@ namespace Hangars
                             {
                                 com.Parameters.AddWithValue("@invoiceid", invoiceID);
                                 com.Parameters.AddWithValue("@amount", amount);
-                                com.Parameters.AddWithValue("@notes", Functions.getTailNumberFromName(fullname) + " in " + row["Hangar"].ToString());
-                                com.Parameters.AddWithValue("@item", Functions.removeFirstTwoDigits(Convert.ToInt32(yearComboBox.SelectedItem.ToString())) + "-" + Functions.shortenMonth(monthComboBox.SelectedItem.ToString()));
+                                com.Parameters.AddWithValue("@notes", Util.getTailNumberFromName(fullname) + " in " + row["Hangar"].ToString());
+                                com.Parameters.AddWithValue("@item", Util.removeFirstTwoDigits(Convert.ToInt32(yearComboBox.SelectedItem.ToString())) + "-" + Util.shortenMonth(monthComboBox.SelectedItem.ToString()));
 
                                 com.ExecuteNonQuery();
                             }
 
-                            Functions.updateCustomerBalance(fullname, (amount_due));
+                            Util.updateCustomerBalance(fullname, (amount_due));
                         }
                     }
                     MessageBox.Show(counter + " Invoices created");
@@ -2309,8 +2488,8 @@ namespace Hangars
             monthComboBox.Name = "monthComboBox";
             monthComboBox.Size = new System.Drawing.Size(121, 21);
             monthComboBox.TabIndex = 0;
-            monthComboBox.Items.AddRange(Functions.Months);
-            monthComboBox.SelectedIndex = monthComboBox.FindStringExact(Functions.intToMonth(DateTime.Now.Month));
+            monthComboBox.Items.AddRange(Util.Months);
+            monthComboBox.SelectedIndex = monthComboBox.FindStringExact(Util.intToMonth(DateTime.Now.Month));
             // 
             // yearComboBox
             // 
@@ -2320,7 +2499,7 @@ namespace Hangars
             yearComboBox.Name = "yearComboBox";
             yearComboBox.Size = new System.Drawing.Size(121, 21);
             yearComboBox.TabIndex = 2;
-            yearComboBox.Items.AddRange(Functions.Years);
+            yearComboBox.Items.AddRange(Util.Years);
             yearComboBox.SelectedIndex = yearComboBox.FindStringExact(DateTime.Now.Year.ToString());
             // 
             // createButton

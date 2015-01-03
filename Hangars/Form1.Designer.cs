@@ -43,6 +43,7 @@
             this.aircraftToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.billingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.monthlyBillToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.invoiceToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripContainer1.TopToolStripPanel.SuspendLayout();
             this.toolStripContainer1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -131,7 +132,8 @@
             this.customerToolStripMenuItem1,
             this.hangarPriceToolStripMenuItem,
             this.hangarSlotsToolStripMenuItem,
-            this.aircraftToolStripMenuItem});
+            this.aircraftToolStripMenuItem,
+            this.invoiceToolStripMenuItem1});
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
             this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
             this.editToolStripMenuItem.Text = "Edit";
@@ -174,9 +176,16 @@
             // monthlyBillToolStripMenuItem
             // 
             this.monthlyBillToolStripMenuItem.Name = "monthlyBillToolStripMenuItem";
-            this.monthlyBillToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.monthlyBillToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
             this.monthlyBillToolStripMenuItem.Text = "Monthly Bill";
             this.monthlyBillToolStripMenuItem.Click += new System.EventHandler(this.monthlyBillToolStripMenuItem_Click);
+            // 
+            // invoiceToolStripMenuItem1
+            // 
+            this.invoiceToolStripMenuItem1.Name = "invoiceToolStripMenuItem1";
+            this.invoiceToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
+            this.invoiceToolStripMenuItem1.Text = "Invoice";
+            this.invoiceToolStripMenuItem1.Click += new System.EventHandler(this.invoiceToolStripMenuItem1_Click);
             // 
             // Form1
             // 
@@ -215,6 +224,7 @@
         private System.Windows.Forms.ToolStripMenuItem monthlyBillToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem invoiceToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aircraftToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem invoiceToolStripMenuItem1;
     }
 }
 

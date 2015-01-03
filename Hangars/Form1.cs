@@ -91,5 +91,11 @@ namespace Hangars
             Clear();
             toolStripContainer1.ContentPanel.Controls.Add(FormDesigner.designCreateMonthlyBill());
         }
+
+        private void invoiceToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            Clear();
+            toolStripContainer1.ContentPanel.Controls.Add(FormDesigner.designSearchInvoice());
+        }
     }
 }

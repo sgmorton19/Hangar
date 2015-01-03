@@ -35,7 +35,7 @@ namespace Hangars
             hangarSlotLabel.Name = "label2";
             hangarSlotLabel.Size = new Size(144, 28);
             hangarSlotLabel.TabIndex = 1;
-            hangarSlotLabel.Text = Functions.getHangarNames()[i];
+            hangarSlotLabel.Text = Util.getHangarNames()[i];
             hangarSlotLabel.TextAlign = ContentAlignment.MiddleCenter;
 
             // 
@@ -45,7 +45,7 @@ namespace Hangars
             customerComboBox.AutoCompleteSource = AutoCompleteSource.ListItems;
             customerComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
             customerComboBox.FormattingEnabled = true;
-            customerComboBox.Items.AddRange(Functions.getCustomerNames(true));
+            customerComboBox.Items.AddRange(Util.getCustomerNames(true));
             customerComboBox.Location = new Point(153, 3);
             customerComboBox.Name = "comboBox1";
             customerComboBox.Size = new Size(121, 21);
@@ -311,26 +311,17 @@ namespace Hangars
         }
     }
 
-    class coll
+    class SelectRow
     {
         Button b;
-        string name_lf;
-        string name_fl;
-        string fname;
-        string lname;
+        List<string> l;
+        public delegate Control buttonClick(string x);
 
-        public string fName
+        public List<string> L
         {
             get
             {
-                return fname;
-            }
-        }
-        public string lName
-        {
-            get
-            {
-                return lname;
+                return l;
             }
         }
         public Button button
@@ -339,36 +330,32 @@ namespace Hangars
             {
                 return b;
             }
-            set
-            {
-                b = value;
-            }
         }
 
-        public string name_LF
+        public SelectRow(List<string> list, string display, string nextScreenKey, Control marginPanel, buttonClick click)
         {
-            get
+            l = list;
+            b = new Button();
+            b.Click += new System.EventHandler(delegate
             {
-                return name_lf;
-            }
-        }
-
-        public string name_FL
-        {
-            get
-            {
-                return name_fl;
-            }
-        }
-
-        public coll(Button but)
-        {
-            b = but;
-            name_lf = b.Text;
-            string[] splited = name_lf.Split(new char[] { ',', ' ' });
-            lname = splited[0];
-            fname = splited[2];
-            name_fl = fname + " " + lname;
+                Control temp = marginPanel.Parent;
+                marginPanel.Parent.Controls.RemoveAt(0);
+                temp.Controls.Add(click(nextScreenKey));
+            });
+            // 
+            // contentButton
+            // 
+            b.FlatAppearance.BorderColor = SystemColors.Control;
+            b.FlatStyle = FlatStyle.Flat;
+            b.Location = new Point(0, 0);
+            b.Margin = new Padding(0);
+            b.Name = "contentButton";
+            b.TabIndex = 0;
+            b.Size = new Size(500, 24);
+            b.Text = display;
+            b.TextAlign = ContentAlignment.MiddleLeft;
+            b.UseVisualStyleBackColor = true;
+            
         }
     }
 
@@ -456,7 +443,7 @@ namespace Hangars
 
 
 
-    static class Functions
+    static class Util
     {
         static string[] states = new string[] { "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY" };
         static string[] phoneTypes = new string[] { "Work", "Home", "Cell", "Other" };
@@ -643,6 +630,56 @@ namespace Hangars
             return "H" + removeFirstTwoDigits(DateTime.Now.Year) + "-" + idnum;
         }
 
+        static public DataTable getInvoices(string date)
+        {
+            SqlCommand command = new SqlCommand("SELECT TOP 1000 * FROM Invoice ORDER BY InvoiceID desc", Form1.connect);
+            SqlDataAdapter namesDataAdapter = new SqlDataAdapter(command);
+            DataTable namesTable = new DataTable();
+            namesDataAdapter.Fill(namesTable);
+
+            return namesTable;
+        }
+
+        static public DataTable getInvoice(string id)
+        {
+            SqlCommand command = new SqlCommand("SELECT * FROM Invoice WHERE InvoiceID = N'" + id + "'", Form1.connect);
+            SqlDataAdapter invoiceDataAdapter = new SqlDataAdapter(command);
+            DataTable invoiceTable = new DataTable();
+            invoiceDataAdapter.Fill(invoiceTable);
+
+            return invoiceTable;
+        }
+
+        static public DataTable getItems(string id)
+        {
+            SqlCommand command = new SqlCommand("SELECT * FROM Item WHERE InvoiceID = N'" + id + "'", Form1.connect);
+            SqlDataAdapter itemDataAdapter = new SqlDataAdapter(command);
+            DataTable itemTable = new DataTable();
+            itemDataAdapter.Fill(itemTable);
+
+            return itemTable;
+        }
+
+        static public DataTable getPayments(string id)
+        {
+            SqlCommand command = new SqlCommand("SELECT * FROM Payment WHERE InvoiceID = N'" + id + "'", Form1.connect);
+            SqlDataAdapter paymentDataAdapter = new SqlDataAdapter(command);
+            DataTable paymentTable = new DataTable();
+            paymentDataAdapter.Fill(paymentTable);
+
+            return paymentTable;
+        }
+
+        static public string[] datatableTOarray(DataTable t, string s)
+        {
+            List<string> x = new List<string>();
+            foreach (DataRow r in t.Rows)
+            {
+                x.Add(r[s].ToString());
+            }
+            return x.ToArray();
+        }
+
         static public int removeFirstTwoDigits(int x)
         {
             double d = DateTime.Now.Year / 100.00;
@@ -658,7 +695,7 @@ namespace Hangars
             DataTable namesTable = new DataTable();
             namesDataAdapter.Fill(namesTable);
 
-            if(namesTable.Rows.Count > 1)
+            if (namesTable.Rows.Count > 1)
             {
                 return "Multiple";
             }
@@ -685,6 +722,11 @@ namespace Hangars
                 x.Add("");
 
             return x.ToArray();
+        }
+
+        static public string[] getCustomerNames()
+        {
+            return getCustomerNames(false);
         }
 
         static public string[] getAircraftNumbers()
@@ -752,13 +794,36 @@ namespace Hangars
 
         static public void updateCustomerBalance(string fullname, decimal amount_due)
         {
-            decimal oldbalance = Functions.getCustomerBalance(fullname);
+            decimal oldbalance = Util.getCustomerBalance(fullname);
 
             using (SqlCommand com = new SqlCommand("UPDATE Customer SET balance = @b WHERE Full_Name = @fullname", Form1.connect))
             {
                 com.Parameters.AddWithValue("@b", oldbalance + amount_due);
                 com.Parameters.AddWithValue("@fullname", fullname);
                 com.ExecuteNonQuery();
+            }
+        }
+
+        static public bool searchButtonVisible(string stopper, List<string> l)
+        {
+
+            if (l.Count == 0)
+                return false;
+            int stop = stopper.Length;
+            string test = l.First();
+            if (stop <= test.Length ? test.Substring(0, stop).Equals(stopper, StringComparison.InvariantCultureIgnoreCase) : false)
+            {
+                return true;
+            }
+            else
+            {
+                List<string> newl = new List<string>();
+                foreach (string x in l)
+                {
+                    if (string.CompareOrdinal(l.First(), x) != 0)
+                        newl.Add(x);
+                }
+                return searchButtonVisible(stopper, newl);
             }
         }
 
