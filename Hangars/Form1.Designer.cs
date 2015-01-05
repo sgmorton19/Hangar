@@ -31,19 +31,19 @@
             this.toolStripContainer1 = new System.Windows.Forms.ToolStripContainer();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.invoiceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.customerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.hangarBuildingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.hangarsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.customerToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.hangarPriceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.hangarSlotsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aircraftToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.invoiceToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.billingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.monthlyBillToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.invoiceToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.hangarBuildingToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.hangarBuildingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.hangarsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.customerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.invoiceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripContainer1.TopToolStripPanel.SuspendLayout();
             this.toolStripContainer1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -82,49 +82,12 @@
             // fileToolStripMenuItem
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.newToolStripMenuItem});
-            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
-            this.fileToolStripMenuItem.Text = "File";
-            // 
-            // newToolStripMenuItem
-            // 
-            this.newToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.invoiceToolStripMenuItem,
-            this.customerToolStripMenuItem,
             this.hangarBuildingToolStripMenuItem,
-            this.hangarsToolStripMenuItem});
-            this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-            this.newToolStripMenuItem.Size = new System.Drawing.Size(98, 22);
-            this.newToolStripMenuItem.Text = "New";
-            // 
-            // invoiceToolStripMenuItem
-            // 
-            this.invoiceToolStripMenuItem.Name = "invoiceToolStripMenuItem";
-            this.invoiceToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
-            this.invoiceToolStripMenuItem.Text = "Invoice";
-            this.invoiceToolStripMenuItem.Click += new System.EventHandler(this.invoiceToolStripMenuItem_Click);
-            // 
-            // customerToolStripMenuItem
-            // 
-            this.customerToolStripMenuItem.Name = "customerToolStripMenuItem";
-            this.customerToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
-            this.customerToolStripMenuItem.Text = "Customer";
-            this.customerToolStripMenuItem.Click += new System.EventHandler(this.customerToolStripMenuItem_Click);
-            // 
-            // hangarBuildingToolStripMenuItem
-            // 
-            this.hangarBuildingToolStripMenuItem.Name = "hangarBuildingToolStripMenuItem";
-            this.hangarBuildingToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
-            this.hangarBuildingToolStripMenuItem.Text = "Hangar Building";
-            this.hangarBuildingToolStripMenuItem.Click += new System.EventHandler(this.hangarBuildingToolStripMenuItem_Click);
-            // 
-            // hangarsToolStripMenuItem
-            // 
-            this.hangarsToolStripMenuItem.Name = "hangarsToolStripMenuItem";
-            this.hangarsToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
-            this.hangarsToolStripMenuItem.Text = "Hangars";
-            this.hangarsToolStripMenuItem.Click += new System.EventHandler(this.hangarsToolStripMenuItem_Click);
+            this.hangarsToolStripMenuItem,
+            this.customerToolStripMenuItem});
+            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(43, 20);
+            this.fileToolStripMenuItem.Text = "New";
             // 
             // editToolStripMenuItem
             // 
@@ -133,7 +96,8 @@
             this.hangarPriceToolStripMenuItem,
             this.hangarSlotsToolStripMenuItem,
             this.aircraftToolStripMenuItem,
-            this.invoiceToolStripMenuItem1});
+            this.invoiceToolStripMenuItem1,
+            this.hangarBuildingToolStripMenuItem1});
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
             this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
             this.editToolStripMenuItem.Text = "Edit";
@@ -141,33 +105,41 @@
             // customerToolStripMenuItem1
             // 
             this.customerToolStripMenuItem1.Name = "customerToolStripMenuItem1";
-            this.customerToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
+            this.customerToolStripMenuItem1.Size = new System.Drawing.Size(160, 22);
             this.customerToolStripMenuItem1.Text = "Customer";
             this.customerToolStripMenuItem1.Click += new System.EventHandler(this.customerToolStripMenuItem1_Click);
             // 
             // hangarPriceToolStripMenuItem
             // 
             this.hangarPriceToolStripMenuItem.Name = "hangarPriceToolStripMenuItem";
-            this.hangarPriceToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.hangarPriceToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
             this.hangarPriceToolStripMenuItem.Text = "Hangar Price";
             // 
             // hangarSlotsToolStripMenuItem
             // 
             this.hangarSlotsToolStripMenuItem.Name = "hangarSlotsToolStripMenuItem";
-            this.hangarSlotsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.hangarSlotsToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
             this.hangarSlotsToolStripMenuItem.Text = "Hangar Slots";
             this.hangarSlotsToolStripMenuItem.Click += new System.EventHandler(this.hangarSlotsToolStripMenuItem_Click);
             // 
             // aircraftToolStripMenuItem
             // 
             this.aircraftToolStripMenuItem.Name = "aircraftToolStripMenuItem";
-            this.aircraftToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.aircraftToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
             this.aircraftToolStripMenuItem.Text = "Aircraft";
             this.aircraftToolStripMenuItem.Click += new System.EventHandler(this.aircraftToolStripMenuItem_Click);
+            // 
+            // invoiceToolStripMenuItem1
+            // 
+            this.invoiceToolStripMenuItem1.Name = "invoiceToolStripMenuItem1";
+            this.invoiceToolStripMenuItem1.Size = new System.Drawing.Size(160, 22);
+            this.invoiceToolStripMenuItem1.Text = "Invoice";
+            this.invoiceToolStripMenuItem1.Click += new System.EventHandler(this.invoiceToolStripMenuItem1_Click);
             // 
             // billingToolStripMenuItem
             // 
             this.billingToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.invoiceToolStripMenuItem,
             this.monthlyBillToolStripMenuItem});
             this.billingToolStripMenuItem.Name = "billingToolStripMenuItem";
             this.billingToolStripMenuItem.Size = new System.Drawing.Size(52, 20);
@@ -176,16 +148,40 @@
             // monthlyBillToolStripMenuItem
             // 
             this.monthlyBillToolStripMenuItem.Name = "monthlyBillToolStripMenuItem";
-            this.monthlyBillToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
+            this.monthlyBillToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.monthlyBillToolStripMenuItem.Text = "Monthly Bill";
             this.monthlyBillToolStripMenuItem.Click += new System.EventHandler(this.monthlyBillToolStripMenuItem_Click);
             // 
-            // invoiceToolStripMenuItem1
+            // hangarBuildingToolStripMenuItem1
             // 
-            this.invoiceToolStripMenuItem1.Name = "invoiceToolStripMenuItem1";
-            this.invoiceToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
-            this.invoiceToolStripMenuItem1.Text = "Invoice";
-            this.invoiceToolStripMenuItem1.Click += new System.EventHandler(this.invoiceToolStripMenuItem1_Click);
+            this.hangarBuildingToolStripMenuItem1.Name = "hangarBuildingToolStripMenuItem1";
+            this.hangarBuildingToolStripMenuItem1.Size = new System.Drawing.Size(160, 22);
+            this.hangarBuildingToolStripMenuItem1.Text = "Hangar Building";
+            this.hangarBuildingToolStripMenuItem1.Click += new System.EventHandler(this.hangarBuildingToolStripMenuItem1_Click);
+            // 
+            // hangarBuildingToolStripMenuItem
+            // 
+            this.hangarBuildingToolStripMenuItem.Name = "hangarBuildingToolStripMenuItem";
+            this.hangarBuildingToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
+            this.hangarBuildingToolStripMenuItem.Text = "Hangar Building";
+            // 
+            // hangarsToolStripMenuItem
+            // 
+            this.hangarsToolStripMenuItem.Name = "hangarsToolStripMenuItem";
+            this.hangarsToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
+            this.hangarsToolStripMenuItem.Text = "Hangars";
+            // 
+            // customerToolStripMenuItem
+            // 
+            this.customerToolStripMenuItem.Name = "customerToolStripMenuItem";
+            this.customerToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
+            this.customerToolStripMenuItem.Text = "Customer";
+            // 
+            // invoiceToolStripMenuItem
+            // 
+            this.invoiceToolStripMenuItem.Name = "invoiceToolStripMenuItem";
+            this.invoiceToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.invoiceToolStripMenuItem.Text = "New Invoice";
             // 
             // Form1
             // 
@@ -212,19 +208,19 @@
         private System.Windows.Forms.ToolStripContainer toolStripContainer1;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem newToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem customerToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem hangarBuildingToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem customerToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem hangarPriceToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem hangarsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem hangarSlotsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem billingToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem monthlyBillToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem invoiceToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aircraftToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem invoiceToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem hangarBuildingToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem hangarsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem customerToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem hangarBuildingToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem invoiceToolStripMenuItem;
     }
 }
 

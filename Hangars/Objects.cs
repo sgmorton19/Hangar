@@ -624,9 +624,16 @@ namespace Hangars
                 SqlDataAdapter namesDataAdapter = new SqlDataAdapter(command);
                 DataTable namesTable = new DataTable();
                 namesDataAdapter.Fill(namesTable);
-                idnum = (Convert.ToInt32(namesTable.Rows[0]["InvoiceID"].ToString().Split(new char[] { '-' })[1]) + 1);
+                if (namesTable.Rows.Count < 1)
+                {
+                    idnum = 1000;
+                }
+                else
+                {
+                    idnum = (Convert.ToInt32(namesTable.Rows[0]["InvoiceID"].ToString().Split(new char[] { '-' })[1]) + 1);
+                }
             }
-
+            
             return "H" + removeFirstTwoDigits(DateTime.Now.Year) + "-" + idnum;
         }
 
@@ -698,6 +705,10 @@ namespace Hangars
             if (namesTable.Rows.Count > 1)
             {
                 return "Multiple";
+            }
+            else if (namesTable.Rows.Count < 1)
+            {
+                return "Empty";
             }
             else
             {

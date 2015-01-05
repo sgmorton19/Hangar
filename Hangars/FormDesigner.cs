@@ -25,7 +25,12 @@ namespace Hangars
 
         static public Control designAddHangarBuilding()
         {
-            return new AddHangarBuilding().Add();
+            return new HangarBuilding().Add();
+        }
+
+        static public Control designEditHangarBuildling()
+        {
+            return new HangarBuilding().Edit();
         }
 
         static public Control designAddHangars()
@@ -892,7 +897,7 @@ namespace Hangars
 
     }
 
-    class AddHangarBuilding
+    class HangarBuilding
     {
         TableLayoutPanel marginPanel;
         FlowLayoutPanel flowLayoutPanel1;
@@ -901,32 +906,25 @@ namespace Hangars
         FlowLayoutPanel flowLayoutPanel2;
         Label monthlyCostLabel;
         TextBox monthlyCostTextBox;
+        FlowLayoutPanel flowLayoutPanel3;
         Button addButton;
+        Button deleteButton;
+        ComboBox hangarBuildingComboBox;
 
-        public AddHangarBuilding()
+        public HangarBuilding()
         {
-
+            buildingNameTextBox = new TextBox();
             marginPanel = new TableLayoutPanel();
             flowLayoutPanel1 = new FlowLayoutPanel();
             flowLayoutPanel2 = new FlowLayoutPanel();
+            flowLayoutPanel3 = new FlowLayoutPanel();
             buildingNameLabel = new Label();
             monthlyCostLabel = new Label();
-            buildingNameTextBox = new TextBox();
             monthlyCostTextBox = new TextBox();
             addButton = new Button();
-            addButton.Click += new System.EventHandler(delegate
-                {
-                    if (buildingNameTextBox.Text != string.Empty && monthlyCostTextBox.Text != string.Empty)
-                    {
-                        using (SqlCommand com = new SqlCommand("INSERT INTO HangarPrice (Building, Price) Values(@building, @price)", Form1.connect))
-                        {
-                            com.Parameters.AddWithValue("@building", buildingNameTextBox.Text);
-                            com.Parameters.AddWithValue("@price", monthlyCostTextBox.Text);
-                            com.ExecuteNonQuery();
-                            MessageBox.Show("Price for " + buildingNameTextBox.Text + " was set to $" + monthlyCostTextBox.Text);
-                        }
-                    }
-                });
+            deleteButton = new Button();
+            hangarBuildingComboBox = new ComboBox();
+            
 
             // 
             // marginPanel
@@ -936,7 +934,7 @@ namespace Hangars
             marginPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
             marginPanel.Controls.Add(flowLayoutPanel1, 1, 1);
             marginPanel.Controls.Add(flowLayoutPanel2, 1, 2);
-            marginPanel.Controls.Add(addButton, 1, 3);
+            marginPanel.Controls.Add(flowLayoutPanel3, 1, 3);
             marginPanel.Dock = DockStyle.Fill;
             marginPanel.Location = new Point(0, 0);
             marginPanel.Name = "marginPanel";
@@ -952,7 +950,6 @@ namespace Hangars
             // flowLayoutPanel1
             // 
             flowLayoutPanel1.Controls.Add(buildingNameLabel);
-            flowLayoutPanel1.Controls.Add(buildingNameTextBox);
             flowLayoutPanel1.Dock = DockStyle.Fill;
             flowLayoutPanel1.Location = new Point(30, 30);
             flowLayoutPanel1.Margin = new Padding(0);
@@ -970,6 +967,16 @@ namespace Hangars
             flowLayoutPanel2.Name = "flowLayoutPanel2";
             flowLayoutPanel2.Size = new Size(380, 30);
             flowLayoutPanel2.TabIndex = 1;
+            // 
+            // flowLayoutPanel3
+            // 
+            flowLayoutPanel3.Controls.Add(addButton);
+            flowLayoutPanel3.Dock = DockStyle.Fill;
+            flowLayoutPanel3.Location = new Point(30, 30);
+            flowLayoutPanel3.Margin = new Padding(0);
+            flowLayoutPanel3.Name = "flowLayoutPanel3";
+            flowLayoutPanel3.Size = new Size(380, 30);
+            flowLayoutPanel3.TabIndex = 0;
             // 
             // buildingNameLabel
             // 
@@ -1011,10 +1018,86 @@ namespace Hangars
             addButton.TabIndex = 2;
             addButton.Text = "Add";
             addButton.UseVisualStyleBackColor = true;
+            // 
+            // deleteButton
+            // 
+            deleteButton.Location = new Point(33, 93);
+            deleteButton.Name = "deleteButton";
+            deleteButton.Size = new Size(75, 23);
+            deleteButton.TabIndex = 2;
+            deleteButton.Text = "Delete";
+            deleteButton.UseVisualStyleBackColor = true;
+            // 
+            // hangarBuildingComboBox
+            // 
+            hangarBuildingComboBox.FormattingEnabled = true;
+            hangarBuildingComboBox.Location = new Point(89, 3);
+            hangarBuildingComboBox.Name = "hangarBuildingComboBox";
+            hangarBuildingComboBox.Size = new Size(121, 21);
+            hangarBuildingComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
+            hangarBuildingComboBox.TabIndex = 1;
+            hangarBuildingComboBox.Items.AddRange(Util.getHangarBuildings());
         }
 
         public Control Add()
         {
+            flowLayoutPanel1.Controls.Add(buildingNameTextBox);
+
+            addButton.Click += new System.EventHandler(delegate
+            {
+                if (buildingNameTextBox.Text != string.Empty && monthlyCostTextBox.Text != string.Empty)
+                {
+                    using (SqlCommand com = new SqlCommand("INSERT INTO HangarPrice (Building, Price) Values(@building, @price)", Form1.connect))
+                    {
+                        com.Parameters.AddWithValue("@building", buildingNameTextBox.Text);
+                        com.Parameters.AddWithValue("@price", monthlyCostTextBox.Text);
+                        com.ExecuteNonQuery();
+                        MessageBox.Show("Price for " + buildingNameTextBox.Text + " was set to $" + monthlyCostTextBox.Text);
+                    }
+                }
+            });
+
+            return marginPanel;
+        }
+
+        public Control Edit()
+        {
+            string hangar = "";
+            flowLayoutPanel1.Controls.Add(hangarBuildingComboBox);
+            flowLayoutPanel3.Controls.Add(deleteButton);
+            addButton.Text = "Edit";
+
+            hangarBuildingComboBox.SelectedIndexChanged += new EventHandler(delegate 
+                {
+                    hangar = hangarBuildingComboBox.SelectedItem.ToString();
+                });
+
+            addButton.Click += new System.EventHandler(delegate
+                {
+                    using (SqlCommand com = new SqlCommand("UPDATE HangarPrice SET Price = @price WHERE Building = @building", Form1.connect))
+                    {
+                        com.Parameters.AddWithValue("@price", monthlyCostTextBox.Text);
+                        com.Parameters.AddWithValue("@building", hangar);
+                        com.ExecuteNonQuery();
+                    }
+                });
+
+            deleteButton.Click += new System.EventHandler(delegate
+                {
+                    using (SqlCommand com = new SqlCommand("DELETE FROM HangarPrice WHERE Building = @building", Form1.connect))
+                    {
+                        com.Parameters.AddWithValue("@building", hangar);
+                        com.ExecuteNonQuery();
+                    }
+                    int length = hangar.Length;
+                    using (SqlCommand com = new SqlCommand("DELETE FROM Hangars WHERE Left(Hangar, @l) = @value", Form1.connect))
+                    {
+                        com.Parameters.AddWithValue("@l", length);
+                        com.Parameters.AddWithValue("@value", hangar);
+                        com.ExecuteNonQuery();
+                    }
+                });
+
             return marginPanel;
         }
     }
@@ -2068,7 +2151,6 @@ namespace Hangars
                 paymentsMasterPanel.Controls.Add(p.paymentsExamplePanel);
             }
 
-
             dateCheckBox.Visible = false;
             createInvoiceButton.Text = "Update Invoice";
             createInvoiceButton.Click += new EventHandler(delegate
@@ -2193,6 +2275,56 @@ namespace Hangars
                             com.ExecuteNonQuery();
                         }
                         oCount++;
+                    }
+                }
+                #endregion
+
+                #region update invoice / customer
+
+                decimal amount_due = 0m;
+                foreach (ChargesRow r in charges)
+                {
+                    amount_due -= Convert.ToDecimal(r.chargesEpriceTextBox.Text);
+                }
+                foreach (PaymentsRow r in payments)
+                {
+                    amount_due += Convert.ToDecimal(r.paymentEamountTextBox.Text);
+                }
+
+                decimal oldAmount = Convert.ToDecimal(invoiceTable.Rows[0]["Amount_Due"].ToString());
+                if(string.CompareOrdinal(invoiceTable.Rows[0]["Customer_Name"].ToString(), customerComboBox.Text) != 0)
+                {
+                    using (SqlCommand com = new SqlCommand("UPDATE Invoice SET Customer_Name = @customer WHERE InvoiceID = @id", Form1.connect))
+                    {
+                        com.Parameters.AddWithValue("@id", invoiceID);
+                        com.Parameters.AddWithValue("@customer", customerComboBox.Text);
+                        com.ExecuteNonQuery();
+                    }
+                    Util.updateCustomerBalance(customerComboBox.Text, amount_due);
+                    Util.updateCustomerBalance(invoiceTable.Rows[0]["Customer_Name"].ToString(), (0m - oldAmount));
+                }
+                else
+                {
+                    Util.updateCustomerBalance(customerComboBox.Text, amount_due - oldAmount);
+                }
+
+                if (string.CompareOrdinal(invoiceTable.Rows[0]["Date"].ToString(), dateTimePicker1.Value.ToString()) != 0)
+                {
+                    using (SqlCommand com = new SqlCommand("UPDATE Invoice SET Date = @date WHERE InvoiceID = @id", Form1.connect))
+                    {
+                        com.Parameters.AddWithValue("@id", invoiceID);
+                        com.Parameters.AddWithValue("@date", dateTimePicker1.Value.ToString());
+                        com.ExecuteNonQuery();
+                    }
+                }
+
+                if (string.CompareOrdinal(invoiceTable.Rows[0]["Amount_Due"].ToString(), amount_due.ToString()) != 0)
+                {
+                    using (SqlCommand com = new SqlCommand("UPDATE Invoice SET Amount_Due = @due WHERE InvoiceID = @id", Form1.connect))
+                    {
+                        com.Parameters.AddWithValue("@id", invoiceID);
+                        com.Parameters.AddWithValue("@due", amount_due);
+                        com.ExecuteNonQuery();
                     }
                 }
                 #endregion
